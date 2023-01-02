@@ -93,6 +93,11 @@ class DyeView extends MovieClip
 		return activeList.length;
 	}
 	
+	public function get color(): Number
+	{
+		return _color;
+	}
+	
 	public function activate(entry: Object): Void
 	{
 		entry.active = true;

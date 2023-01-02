@@ -31,7 +31,7 @@ string Property MOD_OVERRIDE_KEY = "RSMPlugin" AutoReadOnly
 string Property CATEGORY_KEY = "rsm_body_scale" AutoReadOnly
 
 ; NiOverride version data
-int Property NIOVERRIDE_VERSION = 3 AutoReadOnly
+int Property SKEE_VERSION = 1 AutoReadOnly
 int Property NIOVERRIDE_SCRIPT_VERSION = 2 AutoReadOnly
 
 bool _versionValid = false
@@ -51,11 +51,11 @@ EndEvent
 Event OnStartup()
 	parent.OnStartup()
 
-	int nioverrideVersion = SKSE.GetPluginVersion("NiOverride")
+	int nioverrideVersion = SKSE.GetPluginVersion("SKEE")
 	int nioverrideScriptVersion = NiOverride.GetScriptVersion()
 
 	; Check NiOverride version, disable most features if this fails
-	if nioverrideVersion >= NIOVERRIDE_VERSION && nioverrideScriptVersion >= NIOVERRIDE_SCRIPT_VERSION
+	if nioverrideVersion >= SKEE_VERSION && nioverrideScriptVersion >= NIOVERRIDE_SCRIPT_VERSION
 		_versionValid = true
 	Else
 		_versionValid = false

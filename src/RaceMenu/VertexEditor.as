@@ -105,8 +105,19 @@ class VertexEditor extends MovieClip
 	}
 	
 	function InitExtensions()
-	{
+	{		
 		historyWindow.InitExtensions();
+		bottomBar.playerInfo.Lock("R");
+		bottomBar.positionBackground();
+				
+		var brushDistance = historyWindow._x - brushWindow._x;
+		
+		var rightEdge: Object = {x: Stage.visibleRect.x / 2 + Stage.visibleRect.width - Stage.safeRect.x, y: 0};
+		globalToLocal(rightEdge);
+						
+		historyWindow._x = rightEdge.x - historyWindow._width;
+		meshWindow._x = rightEdge.x - meshWindow._width;
+		brushWindow._x = rightEdge.x - brushWindow._width - brushDistance;
 	}
 	
 	public function setPlatform(a_platform: Number, a_bPS3Switch: Boolean): Void
@@ -137,7 +148,7 @@ class VertexEditor extends MovieClip
 		var leftEdge = Stage.visibleRect.x + Stage.safeRect.x;
 		var rightEdge = Stage.visibleRect.x + Stage.visibleRect.width - Stage.safeRect.x;
 		bottomBar.positionElements(leftEdge, rightEdge);
-		
+				
 		var staticPanel = bottomBar["staticPanel"];
 		if(staticPanel) {
 			staticPanel.setPlatform(a_platform, a_bPS3Switch);
@@ -191,6 +202,7 @@ class VertexEditor extends MovieClip
 			if(bRequestLoad) {
 				wireframeDisplay.loadAssets();
 				brushWindow.loadAssets();
+				historyWindow.loadAssets();
 				meshWindow.loadAssets();
 			}
 			

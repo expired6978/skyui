@@ -12,20 +12,17 @@ int Property MAX_MORPHS = 19 AutoReadOnly
 ;--------------------------------------------------
 
 ; Minimum SKSE version statistics
-int Property SKSE_MAJOR_VERSION = 1 AutoReadOnly
-int Property SKSE_MINOR_VERSION = 7 AutoReadOnly
-int Property SKSE_BETA_VERSION = 2 AutoReadOnly
-int Property SKSE_RELEASE_VERSION = 47 AutoReadOnly
+int Property SKSE_MAJOR_VERSION = 2 AutoReadOnly
+int Property SKSE_MINOR_VERSION = 0 AutoReadOnly
+int Property SKSE_BETA_VERSION = 4 AutoReadOnly
+int Property SKSE_RELEASE_VERSION = 53 AutoReadOnly
 
 ; Minimum RaceMenuBase version
 int Property RACEMENUBASE_SCRIPT_VERSION = 7 AutoReadOnly
 
-; CharGen version data
-int Property CHARGEN_VERSION = 6 AutoReadOnly
+; Plugin version data
+int Property SKEE_VERSION = 6 AutoReadOnly
 int Property CHARGEN_SCRIPT_VERSION = 4 AutoReadOnly
-
-; NiOverride version data
-int Property NIOVERRIDE_VERSION = 6 AutoReadOnly
 int Property NIOVERRIDE_SCRIPT_VERSION = 6 AutoReadOnly
 
 string Property DEFAULT_OVERLAY = "Actors\\Character\\Overlays\\Default.dds" AutoReadOnly
@@ -126,20 +123,15 @@ Function OnStartup()
 	Endif
 
 	; Plugin version check
-	int chargenVersion = SKSE.GetPluginVersion("CharGen")
-	int nioverrideVersion = SKSE.GetPluginVersion("NiOverride")
+	int skeeVersion = SKSE.GetPluginVersion("SKEE")
 
 	int chargenScriptVersion = CharGen.GetScriptVersion()
 	int nioverrideScriptVersion = NiOverride.GetScriptVersion()
 
 	; Plugins not installed
-	If nioverrideVersion == 0
-		startupError += ("NiOverride plugin not detected, various features may be unavailable. ")
+	If skeeVersion == 0
+		startupError += ("Skyrim Engine Extender plugin not detected, various features may be unavailable. ")
 		errorCodes += "(3)"
-	Endif
-	If chargenVersion == 0
-		startupError += ("CharGen plugin not detected, various features may be unavailable. ")
-		errorCodes += "(4)"
 	Endif
 
 	; Scripts not installed
@@ -466,7 +458,7 @@ Event OnOverlayGlowColorChange(string eventName, string strArg, float numArg, Fo
 
 	ActorBase targetBase = _targetActor.GetActorBase()
 	bool isFemale = targetBase.GetSex() as bool
-	If SKSE.GetPluginVersion("NiOverride") >= 1 ; Checks to make sure the NiOverride plugin exists
+	If SKSE.GetPluginVersion("SKEE") >= 1 ; Checks to make sure the NiOverride plugin exists
 		int alpha = Math.RightShift(color, 24)
 		NiOverride.AddNodeOverrideInt(_targetActor, isFemale, nodeName, 0, -1, color, true) ; Set the emissive color
 		NiOverride.AddNodeOverrideFloat(_targetActor, isFemale, nodeName, 1, -1, alpha / 10.0, true) ; Set the emissive multiple
@@ -494,7 +486,7 @@ Event OnOverlayColorChange(string eventName, string strArg, float numArg, Form f
 
 	ActorBase targetBase = _targetActor.GetActorBase()
 	bool isFemale = targetBase.GetSex() as bool
-	If SKSE.GetPluginVersion("NiOverride") >= 1 ; Checks to make sure the NiOverride plugin exists
+	If SKSE.GetPluginVersion("SKEE") >= 1 ; Checks to make sure the NiOverride plugin exists
 		int alpha = Math.RightShift(color, 24)
 		NiOverride.AddNodeOverrideInt(_targetActor, isFemale, nodeName, 7, -1, color, true) ; Set the tint color
 		NiOverride.AddNodeOverrideFloat(_targetActor, isFemale, nodeName, 8, -1, alpha / 255.0, true) ; Set the alpha
@@ -526,7 +518,7 @@ Event OnOverlayTextureChange(string eventName, string strArg, float numArg, Form
 
 	ActorBase targetBase = _targetActor.GetActorBase()
 	bool isFemale = targetBase.GetSex() as bool
-	If SKSE.GetPluginVersion("NiOverride") >= 1
+	If SKSE.GetPluginVersion("SKEE") >= 1
 		If type == TINT_TYPE_BODYPAINT || type == TINT_TYPE_HANDPAINT || type == TINT_TYPE_FEETPAINT
 			NiOverride.RevertOverlay(_targetActor, nodeName, overlayMask, overlayMask)
 		Elseif type == TINT_TYPE_FACEPAINT
@@ -553,12 +545,10 @@ EndEvent
 
 
 Function InvalidateShaders()
-	If SKSE.GetPluginVersion("NiOverride") >= 1
+	If SKSE.GetPluginVersion("SKEE") >= 1
 		NiOverride.ApplyOverrides(_targetActor)
 		NiOverride.ApplyNodeOverrides(_targetActor)
-		If SKSE.GetPluginVersion("NiOverride") >= 6
-			NiOverride.ApplySkinOverrides(_targetActor)
-		Endif
+		NiOverride.ApplySkinOverrides(_targetActor)
 	Endif
 EndFunction
 
@@ -941,7 +931,7 @@ EndFunction
 ; Update the color and selection listing of overlays
 
 Function UpdateOverlays()
-	If SKSE.GetPluginVersion("NiOverride") >= 1 ; Checks to make sure the NiOverride plugin exists
+	If SKSE.GetPluginVersion("SKEE") >= 1 ; Checks to make sure the NiOverride plugin exists
 		UpdateOverlay(TINT_TYPE_BODYPAINT, "Body [Ovl", NiOverride.GetNumBodyOverlays(), "RSM_AddBodyTints")
 		UpdateOverlay(TINT_TYPE_HANDPAINT, "Hands [Ovl", NiOverride.GetNumHandOverlays(), "RSM_AddHandTints")
 		UpdateOverlay(TINT_TYPE_FEETPAINT, "Feet [Ovl", NiOverride.GetNumFeetOverlays(), "RSM_AddFeetTints")

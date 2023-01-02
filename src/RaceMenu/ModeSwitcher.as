@@ -27,6 +27,12 @@ class ModeSwitcher extends MovieClip
 	function InitExtensions()
 	{
 		Lock("R");
+		
+		if(_global.skse.plugins.CharGen.bEnableSculpting) {
+			var button3 = addMode("$Sculpt");
+			buttonGroup.addButton(button3);
+			button3.addEventListener("rollOver", this, "onItemRollOver");
+		}
 	}
 	
 	function onLoad()
@@ -37,17 +43,14 @@ class ModeSwitcher extends MovieClip
 		var button0 = addMode("$Sliders");
 		var button1 = addMode("$Presets");
 		var button2 = addMode("$Camera");
-		var button3 = addMode("$Sculpt");
 		buttonGroup.addButton(button0);
 		buttonGroup.addButton(button1);
 		buttonGroup.addButton(button2);
-		buttonGroup.addButton(button3);
 		buttonGroup.setSelectedButton(button0);
 		
 		button0.addEventListener("rollOver", this, "onItemRollOver");
 		button1.addEventListener("rollOver", this, "onItemRollOver");
 		button2.addEventListener("rollOver", this, "onItemRollOver");
-		button3.addEventListener("rollOver", this, "onItemRollOver");
 		
 		buttonGroup.addEventListener("change", this, "onItemChanged");		
 	}

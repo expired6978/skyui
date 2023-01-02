@@ -68,6 +68,7 @@ class PresetEditor extends MovieClip
 		presetPanel.Lock("L");
 		_panelX = presetPanel._x;
 		presetPanel._x = ITEMLIST_HIDDEN_X;
+		bottomBar.positionBackground();
 		
 		itemList.listEnumeration = new BasicEnumeration(itemList.entryList);
 		if(!_global.skse.plugins.CharGen) {

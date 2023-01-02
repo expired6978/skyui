@@ -595,6 +595,32 @@ Function SetSliderParameters(string callback, float min, float max, float interv
 	UI.InvokeStringA(_targetMenu, _targetRoot + "RSM_SetSliderParameters", params)
 EndFunction
 
+Function SetSliderParametersEx(string[] callback, float[] min, float[] max, float[] interval, float[] position, int[] flags)
+	string[] params = new string[6]
+
+	if callback.length > 0
+		params[0] = callback[0]
+		params[1] = min[0] as string
+		params[2] = max[0] as string
+		params[3] = interval[0] as string
+		params[4] = position[0] as string
+		params[5] = flags[0] as string
+
+		int i = 1
+		While i < callback.length
+			params[0] = params[0] + ";;" + callback[i]
+			params[1] = params[1] + ";;" + min[i] as string
+			params[2] = params[2] + ";;" + max[i] as string
+			params[3] = params[3] + ";;" + interval[i] as string
+			params[4] = params[4] + ";;" + position[i] as string
+			params[5] = params[5] + ";;" + flags[i] as string
+			i += 1
+		EndWhile
+	EndIf
+
+	UI.InvokeStringA(_targetMenu, _targetRoot + "RSM_SetSliderParametersEx", params)
+EndFunction
+
 ; 1 - Texture Buffers
 ; 2 - Slider Buffers
 ; 4 - Category Buffer

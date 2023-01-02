@@ -1,7 +1,7 @@
 Scriptname NiOverride Hidden
 
 int Function GetScriptVersion() global
-	return 6
+	return 7
 EndFunction
 
 ; Valid keys
@@ -313,6 +313,12 @@ string[] Function GetMorphNames(ObjectReference ref) native global
 ; Returns all Body Morph keys applied for the morph name
 string[] Function GetMorphKeys(ObjectReference ref, string morphName) native global
 
+; Returns all References currently being morphed
+ObjectReference[] Function GetMorphedReferences() native global
+
+; Calls the function by name on target for each morphed reference
+Function ForEachMorphedReference(string callback, Form target) native global
+
 ; Call this function prior to frequent changes in dyes to prevent massive lag
 Function EnableTintTextureCache() native global
 ; Call this when finished frequent dye edits
@@ -350,6 +356,27 @@ Function ClearItemDyeColor(int uniqudId, int maskIndex) native global
 
 ; Regenerates the tintmask of the dyed object, use after assigning/clearing dye colors
 Function UpdateItemDyeColor(ObjectReference akActor, int uniqueId) native global
+
+
+; v2 Dye Functions
+; Uses the uniqueId acquired from GetItemUniqueID
+Function SetItemTextureLayerColor(int uniqueId, int textureIndex, int layer, int color) native global
+int Function GetItemTextureLayerColor(int uniqueId, int textureIndex, int layer) native global
+Function ClearItemTextureLayerColor(int uniqudId, int textureIndex, int layer) native global
+
+Function SetItemTextureLayerType(int uniqueId, int textureIndex, int layer, int type) native global
+int Function GetItemTextureLayerType(int uniqueId, int textureIndex, int layer) native global
+Function ClearItemTextureLayerType(int uniqudId, int textureIndex, int layer) native global
+
+Function SetItemTextureLayerTexture(int uniqueId, int textureIndex, int layer, string texture) native global
+string Function GetItemTextureLayerTexture(int uniqueId, int textureIndex, int layer) native global
+Function ClearItemTextureLayerTexture(int uniqudId, int textureIndex, int layer) native global
+
+Function SetItemTextureLayerBlendMode(int uniqueId, int textureIndex, int layer, string texture) native global
+string Function GetItemTextureLayerBlendMode(int uniqueId, int textureIndex, int layer) native global
+Function ClearItemTextureLayerBlendMode(int uniqudId, int textureIndex, int layer) native global
+
+Function UpdateItemTextureLayers(ObjectReference akActor, int uniqueId) native global
 
 ; ------ NON PERSISTENT FUNCTIONS --------------
 ; These functions do not persist in game sessions but are instead 

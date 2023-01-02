@@ -4,6 +4,7 @@ import gfx.ui.InputDetails;
 import gfx.ui.NavigationCode;
 import gfx.io.GameDelegate;
 import Shared.GlobalFunc;
+import flash.utils.Timer;
 
 import com.greensock.TweenLite;
 import com.greensock.plugins.TweenPlugin;
@@ -49,6 +50,7 @@ class RaceMenu extends MovieClip
 	private var _savedColor: Number;
 	private var _artPrimary: Array;
 	private var _artSecondary: Array;
+	private var _pauseInputHandling: Boolean = false;
 	
 	public var makeupList: Array;
 	
@@ -121,6 +123,7 @@ class RaceMenu extends MovieClip
 	function RaceMenu()
 	{
 		super();
+		
 		TweenPlugin.activate([AutoAlphaPlugin]);
 		PapyrusInterface.initialize(this);
 		
@@ -168,6 +171,7 @@ class RaceMenu extends MovieClip
 		_categorySortFilter = new SortFilter();
 		_itemSortFilter = new SortFilter();
 		
+		GameDelegate.initialize();
 		GameDelegate.addCallBack("SetCategoriesList", this, "SetCategoriesList");
 		GameDelegate.addCallBack("ShowTextEntry", this, "ShowTextEntry");
 		GameDelegate.addCallBack("SetNameText", this, "SetNameText");
@@ -385,10 +389,13 @@ class RaceMenu extends MovieClip
 		
 	public function InitExtensions()
 	{
+		_global.gfxExtensions = true;
+		Stage.scaleMode = "showAll";		
 		racePanel.Lock("L");
 		raceDescription.Lock("L");
 		modeSelect.Lock("TR");
 		bottomBar.playerInfo.Lock("R");
+		bottomBar.positionBackground();
 		
 		vertexEditor.InitExtensions();
 		modeSelect.InitExtensions();
@@ -396,16 +403,6 @@ class RaceMenu extends MovieClip
 		presetEditor.InitExtensions();
 		
 		_panelX = racePanel._x;
-		//itemDescriptor._x = _panelX + racePanel._width;
-
-		//raceDescription._x = racePanel._x + raceDescription._width / 2 + racePanel._width + 15;
-		//raceDescription._y = bottomBar._y - raceDescription._height / 2 - 15;
-		
-		//bonusPanel._x = racePanel._x + bonusPanel._width / 2 + racePanel._width + 10;
-		//bonusPanel._y = bottomBar._y - bonusPanel._height / 2 - 10;
-		
-		//bonusPanel._x = raceDescription._x + bonusPanel._width / 2 + raceDescription._width / 2 + 15;
-		//bonusPanel._y = raceDescription._y;
 		
 		colorField._x = racePanel._x + racePanel._width / 2;
 		makeupPanel._x = racePanel._x + racePanel._width / 2;
@@ -455,7 +452,7 @@ class RaceMenu extends MovieClip
 	}
 	
 	public function handleInput(details: InputDetails, pathToFocus: Array): Boolean
-	{
+	{		
 		// Consume input when these windows are open
 		if(colorField.enabled) {
 			return colorField.handleInput(details, pathToFocus);
@@ -717,7 +714,7 @@ class RaceMenu extends MovieClip
 		categoryList.entryList.push({type: RaceMenuDefines.ENTRY_TYPE_CAT, bDontHide: false, filterFlag: 1, text: "$COLORS", flag: RaceMenuDefines.CATEGORY_COLOR, priority: priority, enabled: true}); priority += RaceMenuDefines.CATEGORY_PRIORITY_STEP;
 		categoryList.entryList.push({type: RaceMenuDefines.ENTRY_TYPE_CAT, bDontHide: false, filterFlag: 1, text: "$MAKEUP", flag: RaceMenuDefines.CATEGORY_WARPAINT, priority: priority, enabled: true}); priority += RaceMenuDefines.CATEGORY_PRIORITY_STEP;
 		
-		if(_global.skse.plugins.NiOverride) {
+		if(_global.skse.plugins.NiOverride.bEnableOverlays) {
 			var bodyOverlays: Object = _global.skse.plugins.NiOverride.body;
 			var handOverlays: Object = _global.skse.plugins.NiOverride.hand;
 			var feetOverlays: Object = _global.skse.plugins.NiOverride.feet;
@@ -1348,7 +1345,7 @@ class RaceMenu extends MovieClip
 			if(formName != undefined && formId != undefined) {
 				//itemDescriptor._x = itemList.disableSelection ? (ITEMLIST_HIDDEN_X + racePanel._width) : (_panelX + racePanel._width);
 				//itemDescriptor._y = itemList.getClipGlobalCoordinate().y - 10;
-				var modName: String = _global.skse.plugins.CharGen.GetModName(formId >>> 24);
+				var modName: String = _global.skse.plugins.CharGen.GetModName(formId);
 				itemDescriptor.setText(modName + " (" + formName + ")", a_fadeDelay);
 				itemDescriptor._x = Stage.visibleRect.x + Stage.visibleRect.width - itemDescriptor._width;
 				itemDescriptor.toggle(true);
@@ -1362,7 +1359,7 @@ class RaceMenu extends MovieClip
 				var formName: String = raceForm.editorId;
 				var formId: Number = raceForm.formId;
 				//itemDescriptor._y = itemList.getClipGlobalCoordinate().y - 10;
-				var modName: String = _global.skse.plugins.CharGen.GetModName(formId >>> 24);
+				var modName: String = _global.skse.plugins.CharGen.GetModName(formId);
 				itemDescriptor.setText(modName + " (" + formName + ")", a_fadeDelay);
 				itemDescriptor._x = Stage.visibleRect.x + Stage.visibleRect.width - itemDescriptor._width;
 				itemDescriptor.toggle(true);

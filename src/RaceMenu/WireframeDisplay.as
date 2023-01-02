@@ -96,11 +96,32 @@ class WireframeDisplay extends gfx.core.UIComponent
 	{
 		EventDispatcher.initialize(a_clip);
 		
+		/*var orig = {x: Stage["originalRect"]["width"], y: Stage["originalRect"]["height"]};
+		var res = Stage["translateToScreen"](orig);
+		
+		var rx:Number = res.x / orig.x;
+		var ry:Number = res.y / orig.y;
+		var ratio:Number = rx < ry ? rx : ry;*/
+		
+		// I don't know why it decided to mess with this?
+		foreground._width = 32;
+		foreground._height = 32;
+		
 		a_clip._width = editorData.width;
 		a_clip._height = editorData.height;
 		
 		foreground.fixedWidth = editorData.width;
 		foreground.fixedHeight = editorData.height;
+		
+		foreground["doHoverMesh"] = function()
+		{
+			var width: Number = this.fixedWidth;
+			var height: Number = this.fixedHeight;
+			var x: Number = Math.max(0, Math.min(_xmouse, width));
+			var y: Number = Math.max(0, Math.min(_ymouse, height));
+			
+			_global.skse.plugins.CharGen.DoHoverMesh(x, y);
+		}
 				
 		foreground["doRotateMesh"] = function()
 		{
@@ -109,6 +130,7 @@ class WireframeDisplay extends gfx.core.UIComponent
 			var x: Number = Math.max(0, Math.min(_xmouse, width));
 			var y: Number = Math.max(0, Math.min(_ymouse, height));
 			
+			this.doHoverMesh(x, y);
 			_global.skse.plugins.CharGen.DoRotateMesh(x, y);
 		}
 		foreground["endRotateMesh"] = function(mouseIdx:Number, keyboardOrMouse:Number, buttonIdx:Number)
@@ -119,7 +141,7 @@ class WireframeDisplay extends gfx.core.UIComponent
 				return undefined;
 			
 			this.rotating = false;
-			this.onMouseMove = null;
+			this.onMouseMove = this.doHoverMesh;
 			this.onReleaseAux = null;
 			this.onReleaseOutsideAux = null;
 			
@@ -138,6 +160,7 @@ class WireframeDisplay extends gfx.core.UIComponent
 			var x: Number = Math.max(0, Math.min(_xmouse, width));
 			var y: Number = Math.max(0, Math.min(_ymouse, height));
 			
+			this.doHoverMesh(x, y);
 			_global.skse.plugins.CharGen.DoPanMesh(x, y);
 		}
 		foreground["endPanMesh"] = function(mouseIdx:Number, keyboardOrMouse:Number, buttonIdx:Number)
@@ -148,7 +171,7 @@ class WireframeDisplay extends gfx.core.UIComponent
 				return undefined;
 			
 			this.panning = false;
-			this.onMouseMove = null;
+			this.onMouseMove = this.doHoverMesh;
 			this.onReleaseAux = null;
 			this.onReleaseOutsideAux = null;
 			
@@ -207,6 +230,7 @@ class WireframeDisplay extends gfx.core.UIComponent
 			var x: Number = Math.max(0, Math.min(_xmouse, width));
 			var y: Number = Math.max(0, Math.min(_ymouse, height));
 			
+			this.doHoverMesh(x,y);
 			_global.skse.plugins.CharGen.DoPaintMesh(x, y);
 		}
 		foreground["endPaintMesh"] = function(mouseIdx:Number, keyboardOrMouse:Number, buttonIdx:Number)
@@ -215,7 +239,7 @@ class WireframeDisplay extends gfx.core.UIComponent
 				return undefined;
 				
 			this.painting = false;
-			this.onMouseMove = null;
+			this.onMouseMove = this.doHoverMesh;
 			this.onRelease = null;
 			this.onReleaseOutside = null;
 			_parent.dispatchEvent({type: "endPainting"});
@@ -226,7 +250,7 @@ class WireframeDisplay extends gfx.core.UIComponent
 		{
 			if(this.rotating || this.panning) // Don't interrupt existing action
 				return undefined;
-			if(this.onMouseMove) // Don't interrupt existing action
+			if(this.onMouseMove != this.doHoverMesh) // Don't interrupt existing action
 				return undefined;
 				
 			var width: Number = this.fixedWidth;
@@ -244,6 +268,7 @@ class WireframeDisplay extends gfx.core.UIComponent
 				_parent.background.onPress(mouseIdx, keyboardOrMouse, buttonIdx);
 			}
 		}
+		foreground["onMouseMove"] = foreground["doHoverMesh"];
 		foreground["onPress"] = foreground["beginPaintMesh"];
 		calculateBackground();
 	}

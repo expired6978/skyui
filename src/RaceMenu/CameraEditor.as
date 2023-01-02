@@ -71,6 +71,7 @@ class CameraEditor extends MovieClip
 		var rotation:Array = _global.skse.plugins.CharGen.GetPlayerRotation();
 		_startRotation = Math.acos(rotation[0]);
 		_currentRotation = 0;
+		bottomBar.positionBackground();
 	}
 	
 	public function setPlatform(a_platform: Number, a_bPS3Switch: Boolean): Void

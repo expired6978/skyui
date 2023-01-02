@@ -39,6 +39,8 @@ class DyeMenu extends MovieClip
 	private var _updateInterval: Number;
 	private var _pendingData: Object = null;
 	
+	private var _activeColors: Array;
+	
 	// Controls
 	private var _selectColorControl: Object;
 	private var _dyeControl: Object;
@@ -90,7 +92,7 @@ class DyeMenu extends MovieClip
 		dyeList.addEventListener("itemPressAux", this, "onDyeAuxPressed");
 		
 		/*for(var i = 0; i < 25; i++) {
-			var entry: Object = {text: "Item"+i, enabled: true, colors: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], internalObject: undefined};
+			var entry: Object = {text: "Item"+i, enabled: true, colors: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], base: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], internalObject: undefined};
 			itemList.entryList.push(entry);
 		}
 		itemList.requestInvalidate();
@@ -112,9 +114,17 @@ class DyeMenu extends MovieClip
 	
 	public function InitExtensions(): Void
 	{
+		Stage.scaleMode = "showAll";
+		
 		itemView.Lock("L");
 		_dyeViewX = itemView._x;
 		dyeView._x = _dyeViewX;
+		
+		var minXY: Object = {x: Stage.visibleRect.x, y: Stage.visibleRect.y};
+		globalToLocal(minXY);
+		bottomBar["background"]._xscale = Stage.width / 1280 * 100;
+		bottomBar["background"]._x = minXY.x;
+		
 		
 		skse.SendModEvent("UIDyeMenu_LoadMenu");
 		
@@ -310,9 +320,7 @@ class DyeMenu extends MovieClip
 	{
 		if(!entry) {
 			var listEntry = itemList.listState.focusEntry;
-			var layerId: Number = itemView.focusedLayer.id;
-			var color: Number = listEntry.colors[layerId];
-			requestUpdate({formId: _formId, object: listEntry.internalObject, maskIndex: layerId, maskColor: color});
+			requestUpdate({formId: _formId, object: listEntry.internalObject, colors: listEntry.overrides});
 		}
 		
 		itemList.listState.focusEntry = entry;
@@ -364,8 +372,13 @@ class DyeMenu extends MovieClip
 			var layerId = itemView.focusedLayer.id;
 			itemView.focusedLayer.setColor(event.color);
 			listEntry.colors[layerId] = event.color;
+			listEntry.overrides[layerId] = event.color;
+			if(event.color == 0) {
+				listEntry.overrides[layerId] = null;
+				listEntry.colors[layerId] = listEntry.base[layerId];
+			}
 			
-			requestUpdate({formId: _formId, object: listEntry.internalObject, maskIndex: layerId, maskColor: event.color});
+			requestUpdate({formId: _formId, object: listEntry.internalObject, colors: listEntry.overrides});
 		}
 	}
 	
@@ -377,7 +390,9 @@ class DyeMenu extends MovieClip
 				event.color = null;
 
 			var layerId = itemView.focusedLayer.id;
-			requestUpdate({formId: _formId, object: listEntry.internalObject, maskIndex: layerId, maskColor: event.color});
+			var colors: Array = listEntry.overrides.concat();
+			colors[layerId] = event.color;
+			requestUpdate({formId: _formId, object: listEntry.internalObject, colors: colors});
 		}
 	}
 	
@@ -391,8 +406,8 @@ class DyeMenu extends MovieClip
 	
 	public function processDataUpdate()
 	{
-		if(_global.skse.plugins.NiOverride.SetItemDyeColor) {
-			_global.skse.plugins.NiOverride.SetItemDyeColor(_pendingData.formId, _pendingData.object, _pendingData.maskIndex, _pendingData.maskColor);
+		if(_global.skse.plugins.NiOverride.SetItemDyeColors) {
+			_global.skse.plugins.NiOverride.SetItemDyeColors(_pendingData.formId, _pendingData.object, _pendingData.colors);
 		}
 		
 		_pendingData = null;
@@ -405,6 +420,11 @@ class DyeMenu extends MovieClip
 		var listEntry = itemList.listState.focusEntry;
 		if(listEntry) {
 			itemView.setLayerFocused(event.entry.id);
+			
+			if(dyeView.activeCount > 0) {
+				onChangeDyeColor({color: dyeView.color});
+			}
+			
 			GameDelegate.call("PlaySound", ["UISelectOn"]);
 		}
 		
@@ -429,7 +449,18 @@ class DyeMenu extends MovieClip
 			
 		var inventory: Array = _global.skse.plugins.NiOverride.GetDyeableItems(_formId);
 		for(var i = 0; i < inventory.length; i++) {
-			var entry: Object = {text: inventory[i].name, enabled: true, colors: inventory[i].colors, internalObject: inventory[i]};
+			var merged = new Array();
+			var overrides = new Array();
+			for(var k = 0; k < inventory[i].base.length; ++k) {
+				merged.push(inventory[i].base[k]);
+				if(inventory[i].colors[k] != 0) {
+					merged[k] = inventory[i].colors[k];
+					overrides.push(inventory[i].colors[k]);
+				} else {
+					overrides.push(null);
+				}
+			}
+			var entry: Object = {text: inventory[i].name, enabled: true, colors: merged, overrides: overrides, base: inventory[i].base, internalObject: inventory[i]};
 			itemList.entryList.push(entry);
 		}
 		

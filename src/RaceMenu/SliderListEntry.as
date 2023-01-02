@@ -7,6 +7,9 @@ import gfx.ui.InputDetails;
 import gfx.io.GameDelegate;
 import gfx.controls.Slider;
 
+import flash.utils.Timer;
+import flash.events.TimerEvent;
+
 import RaceMenuDefines;
 
 class SliderListEntry extends MovieClip
@@ -30,6 +33,9 @@ class SliderListEntry extends MovieClip
 	public var trigger: MovieClip;
 	public var colorSquare: MovieClip;
 	public var glowSquare: MovieClip;
+	
+	private var rateInterval: Number;
+	private var eventData:Object;
 		
 	/* PUBLIC FUNCTIONS */
 	
@@ -87,6 +93,13 @@ class SliderListEntry extends MovieClip
 				list.onItemPressAux(_parent.itemIndex, undefined, 1);
 		}
 	}
+		
+	private function onTimerComplete()
+	{
+		skse.SendModEvent(eventData.event, eventData.callback, eventData.position);
+		clearInterval(rateInterval);
+		delete rateInterval;
+    }
 	
 	public function handleInput(details: InputDetails, pathToFocus: Array): Boolean
 	{
@@ -244,13 +257,22 @@ class SliderListEntry extends MovieClip
 		slider.sliderID = a_entryObject.sliderID;
 		slider.internalCallback = a_entryObject.internalCallback;
 		slider.entryObject = a_entryObject;
+		slider.entryClip = this;
 		slider.changedCallback = function()
 		{
 			GameDelegate.call(this.callbackName, [this.position, this.sliderID]);
 			GameDelegate.call("PlaySound",["UIMenuFocus"]);
 			
-			skse.SendModEvent(_global.eventPrefix + "SliderChange", this.callbackName, this.position);
+			this.entryClip.eventData = {
+				event: _global.eventPrefix + "SliderChange",
+				callback: this.callbackName,
+				position: this.position
+			};
 			
+			if(!this.entryClip.rateInterval) {
+				this.entryClip.rateInterval = setInterval(this.entryClip, "onTimerComplete", 100);
+			}
+						
 			this.entryObject.position = this.position;
 			_parent.valueField.SetText(((this.position * 100)|0)/100);
 			
