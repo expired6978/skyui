@@ -132,7 +132,7 @@ class BrushWindow extends MovableWindow
 		
 		var brushId: Number = _global.skse.plugins.CharGen.GetCurrentBrush();
 		currentBrush = getBrushIndex(brushId);
-		categoryList.InvalidateData();
+		categoryList.requestInvalidate();
 		categoryList.onItemPress(currentBrush, 0);
 
 		brushList.requestInvalidate();

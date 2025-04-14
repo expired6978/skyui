@@ -106,6 +106,7 @@ class RaceMenu extends MovieClip
 	public var bonusList: ScrollingList;
 	
 	public var makeupPanel: MakeupPanel;
+	public var partsPanel: PartsPanel;
 	public var itemDescriptor: MovieClip;
 	public var statusText: String = "";
 	
@@ -190,6 +191,7 @@ class RaceMenu extends MovieClip
 		ShowRaceDescription(false);
 		ShowColorField(false);
 		ShowMakeupPanel(false);
+		ShowPartsPanel(false);
 		
 		raceDescription.textField.textAutoSize = "shrink";
 		
@@ -233,6 +235,7 @@ class RaceMenu extends MovieClip
 		colorField.addEventListener("saveColor", this, "onSaveColor");
 		
 		makeupPanel.addEventListener("changeTexture", this, "onChangeTexture");
+		partsPanel.addEventListener("changePart", this, "onChangePart");
 		modeSelect.addEventListener("changeMode", this, "onChangeMode");
 		modeSelect.addEventListener("tabRollOver", this, "onTabRollOver");
 		
@@ -316,7 +319,53 @@ class RaceMenu extends MovieClip
 		var GetTextureList: Function = function(raceMenu: Object): Array { return raceMenu.makeupList[RaceMenuDefines.PAINT_WAR]; }
 		var showDescriptor: Function = function(): Boolean { return true; }
 		
-		var extraData = {partName: "TestPart", formId: 1234};
+		var extraData = {partName: "TestPart", formId: 1234, parts: 5};
+		var tagData = {
+			tags: [
+				{name: "Short", label: "$Short"}, 
+				{name: "Long", label: "$Long"},
+				{name: "KSHairdo", label: "$KSHairdo"}
+			], 
+			parts: [
+				{
+					name: "Dazzy",
+					tags: ["Short", "KSHairdo"],
+					index: 0,
+					source: "KSHairdo.esp"
+				},
+				{
+					name: "Jazz",
+					tags: ["Long", "KSHairdo"],
+					index: 1,
+					source: "KSHairdo.esp"
+				},
+				{
+					name: "AQ1",
+					tags: ["Long", "KSHairdo"],
+					index: 2,
+					source: "KSHairdo.esp"
+				},
+				{
+					name: "AD3",
+					tags: ["Long", "KSHairdo"],
+					index: 3,
+					source: "KSHairdo.esp"
+				},
+				{
+					name: "GGd",
+					tags: ["Long", "KSHairdo"],
+					index: 4,
+					source: "KSHairdo.esp"
+				},
+				{
+					name: "SDS",
+					tags: ["Long", "KSHairdo"],
+					index: 5,
+					source: "KSHairdo.esp"
+				}
+			]
+		};
+		var GetSliderPartData: Function = function(sliderIndex: Number): Object { return tagData; }
 		
 		itemList.entryList.push({type: RaceMenuDefines.ENTRY_TYPE_SLIDER, text: "Sex", filterFlag: 4, callbackName: "ChangeSex", sliderMin: 0, sliderMax: 1, sliderID: -1, position: 0, interval: 1, enabled: true});
 		itemList.entryList.push({type: RaceMenuDefines.ENTRY_TYPE_SLIDER, text: "Presets", filterFlag: 4, callbackName: "ChangeHeadPreset", sliderMin: 0, sliderMax: 0, sliderID: 0, position: 0, interval: 1, enabled: true});
@@ -328,7 +377,7 @@ class RaceMenu extends MovieClip
 		itemList.entryList.push({type: RaceMenuDefines.ENTRY_TYPE_SLIDER, text: "Scars", filterFlag: 8, callbackName: "ChangeHeadPart", sliderMin: 0, sliderMax: 12, sliderID: 6, position: 7, interval: 1, enabled: true});
 		itemList.entryList.push({type: RaceMenuDefines.ENTRY_TYPE_SLIDER, text: "War Paint", filterFlag: 8, callbackName: "ChangeMask", sliderMin: -1, sliderMax: 14, sliderID: 7, position: -1, interval: 1, enabled: true});
 		itemList.entryList.push({type: RaceMenuDefines.ENTRY_TYPE_SLIDER, text: "War Paint Color", filterFlag: 8 + RaceMenuDefines.CATEGORY_COLOR, callbackName: "ChangeMaskColor", sliderMin: 1, sliderMax: 23, sliderID: 8, position: 0, interval: 1, enabled: true, isColorEnabled: isEnabled, hasColor: isEnabled, tintType: RaceMenuDefines.TINT_MAP[colorIndex++]});
-		itemList.entryList.push({type: RaceMenuDefines.ENTRY_TYPE_SLIDER, text: "Hair", filterFlag: 256, callbackName: "ChangeHeadPart", sliderMin: 0, sliderMax: 69, sliderID: 9, position: 10, interval: 1, enabled: true, extraData: extraData});
+		itemList.entryList.push({type: RaceMenuDefines.ENTRY_TYPE_SLIDER, text: "Hair", filterFlag: 256, callbackName: "ChangeHeadPart", sliderMin: 0, sliderMax: 69, sliderID: 9, position: 2, interval: 1, enabled: true, extraData: extraData, GetSliderPartData: GetSliderPartData});
 		itemList.entryList.push({type: RaceMenuDefines.ENTRY_TYPE_SLIDER, text: "Facial Hair", filterFlag: 256, callbackName: "ChangeHeadPart", sliderMin: 0, sliderMax: 45, sliderID: 10, position: 41, interval: 1, enabled: true});
 		itemList.entryList.push({type: RaceMenuDefines.ENTRY_TYPE_SLIDER, text: "Hair Color", filterFlag: 256 + RaceMenuDefines.CATEGORY_COLOR, callbackName: "ChangeHairColorPreset", sliderMin: 0, sliderMax: 6594, sliderID: 11, position: 6578, interval: 1, enabled: true, isColorEnabled: isEnabled, hasColor: isEnabled, tintType: RaceMenuDefines.TINT_MAP[colorIndex++]});
 		itemList.entryList.push({type: RaceMenuDefines.ENTRY_TYPE_SLIDER, text: "Eye Shape", filterFlag: 32, callbackName: "ChangePreset", sliderMin: 0, sliderMax: 37, sliderID: 12, position: 1, interval: 1, enabled: true});
@@ -406,6 +455,7 @@ class RaceMenu extends MovieClip
 		
 		colorField._x = racePanel._x + racePanel._width / 2;
 		makeupPanel._x = racePanel._x + racePanel._width / 2;
+		partsPanel._x = racePanel._x + racePanel._width / 2 + 50;
 	}
 	
 	public function SetPlatform(a_platform: Number, a_bPS3Switch: Boolean): Void
@@ -417,6 +467,7 @@ class RaceMenu extends MovieClip
 		bottomBar.setPlatform(a_platform, a_bPS3Switch);
 		colorField.setPlatform(a_platform, a_bPS3Switch);
 		makeupPanel.setPlatform(a_platform, a_bPS3Switch);
+		partsPanel.setPlatform(a_platform, a_bPS3Switch);
 		vertexEditor.setPlatform(a_platform, a_bPS3Switch);
 		cameraEditor.setPlatform(a_platform, a_bPS3Switch);
 		presetEditor.setPlatform(a_platform, a_bPS3Switch);
@@ -439,6 +490,7 @@ class RaceMenu extends MovieClip
 		textEntry.SetupButtons();
 		colorField.SetupButtons();
 		makeupPanel.SetupButtons();
+		partsPanel.SetupButtons();
 		
 		var leftEdge = Stage.visibleRect.x + Stage.safeRect.x;
 		var rightEdge = Stage.visibleRect.x + Stage.visibleRect.width - Stage.safeRect.x;
@@ -460,6 +512,8 @@ class RaceMenu extends MovieClip
 			return textEntry.handleInput(details, pathToFocus);
 		} else if(makeupPanel.enabled) {
 			return makeupPanel.handleInput(details, pathToFocus);
+		} else if(partsPanel.enabled) {
+			return partsPanel.handleInput(details, pathToFocus);
 		} else if(vertexEditor.enabled) {
 			if(vertexEditor.handleInput(details, pathToFocus))
 				return true;
@@ -520,6 +574,8 @@ class RaceMenu extends MovieClip
 				ShowColorField(false);
 			else if(makeupPanel._visible)
 				ShowMakeupPanel(false);
+			else if(partsPanel._visible)
+				ShowPartsPanel(false);
 			
 			modeSelect.setMode(0);
 			vertexEditor.unloadAssets();
@@ -615,6 +671,22 @@ class RaceMenu extends MovieClip
 			makeupPanel.initParams = initParams;
 			FocusHandler.instance.setFocus(makeupPanel.makeupList, 0);
 		} else {
+			FocusHandler.instance.setFocus(itemList, 0);
+		}
+		
+		ShowRacePanel(!bShowPanel);
+		ShowBottomBar(!bShowPanel);
+		ShowModeSwitcher(!bShowPanel);
+	}
+	
+	public function ShowPartsPanel(bShowPanel: Boolean, initParams: Object): Void
+	{
+		partsPanel._visible = partsPanel.enabled = bShowPanel;
+		if(bShowPanel) {
+			partsPanel.initParams = initParams;
+			FocusHandler.instance.setFocus(partsPanel.partsList, 0);
+		} else {
+			partsPanel.clearData();
 			FocusHandler.instance.setFocus(itemList, 0);
 		}
 		
@@ -794,6 +866,7 @@ class RaceMenu extends MovieClip
 				entryObject.hasGlow = function(): Boolean { return false; }
 				colorIndex++;
 			} else {
+				entryObject.isColorEnabled = function(): Boolean { return false; }
 				entryObject.hasColor = function(): Boolean { return false; }
 				entryObject.hasGlow = function(): Boolean { return false; }
 			}
@@ -828,6 +901,7 @@ class RaceMenu extends MovieClip
 				}
 			}
 			
+			entryObject.GetSliderPartData = _global.skse.plugins.CharGen.GetSliderPartData;
 			entryObject.GetTextureList = function(raceMenu: Object): Array { return null; }		
 			
 			itemList.entryList.push(entryObject);
@@ -985,6 +1059,20 @@ class RaceMenu extends MovieClip
 		
 		if(event.apply) {
 			ShowMakeupPanel(false);
+			GameDelegate.call("PlaySound", ["UIMenuBladeCloseSD"]);
+		}
+	}
+	
+	public function onChangePart(event: Object): Void
+	{
+		if(event.selection != undefined) {
+			GameDelegate.call(event.entry.callbackName, [event.selection, event.entry.sliderID]);
+		}
+		
+		if(event.apply) {
+			event.entry.position = event.selection;
+			itemList.requestUpdate();
+			ShowPartsPanel(false);
 			GameDelegate.call("PlaySound", ["UIMenuBladeCloseSD"]);
 		}
 	}
@@ -1258,29 +1346,62 @@ class RaceMenu extends MovieClip
 			bRaceChanging = true;
 			bPlayerZoom = true; // Reset zoom, this happens when race is changed
 			updateBottomBar();
-		} else if(pressedEntry.isColorEnabled()) {
-			colorField.setText(pressedEntry.text);
-			colorField.setColor(pressedEntry.fillColor);
-			GameDelegate.call("PlaySound", ["UIMenuBladeOpenSD"]);
-			ShowColorField(true, {entry: pressedEntry, mode: "tint", bCanSwitchMode: isOverlayType(pressedEntry.tintType), savedColor: _savedColor});
-		}/* else {
+		} else if(pressedEntry.isColorEnabled && pressedEntry.isColorEnabled()) {
+			openColorPicker(pressedEntry);
+		} else if(pressedEntry.extraData && pressedEntry.extraData.parts > 0) {
+			openPartsPanel(pressedEntry);
+		}
+		/* else {
 			itemList.listState.focusEntry = entryObject;
 			itemList.requestUpdate();
 		}*/
 	}
 	
+	private function openColorPicker(entry: Object): Void
+	{
+		if(entry && entry.isColorEnabled && entry.isColorEnabled()) {
+			colorField.setText(entry.text);
+			colorField.setColor(entry.fillColor);
+			GameDelegate.call("PlaySound", ["UIMenuBladeOpenSD"]);
+			ShowColorField(true, {entry: entry, mode: "tint", bCanSwitchMode: isOverlayType(entry.tintType), savedColor: _savedColor});
+		}
+	}
+	
+	private function openPartsPanel(entry: Object): Void
+	{
+		if(entry && entry.GetSliderPartData) {
+			var partsData: Object = entry.GetSliderPartData(entry.sliderID);
+			if(partsData) {
+				partsPanel.setTagsList(partsData.tags);
+				partsPanel.setPartsList(partsData.parts);
+				partsPanel.updateButtons(true);
+				partsPanel.setPart(entry);
+				GameDelegate.call("PlaySound", ["UIMenuBladeOpenSD"]);
+				ShowPartsPanel(true, {entry: entry});
+			}
+		}
+	}
+	
+	private function openMakeupPanel(entry: Object): Void
+	{
+		if(entry) {
+			var textureList: Array = entry.GetTextureList(this);
+			if(textureList) {
+				makeupPanel.setMakeupList(textureList);
+				makeupPanel.updateButtons(true);
+				makeupPanel.setSelectedEntry(entry.texture);
+				makeupPanel.setTexture(entry.text, entry.texture);
+				GameDelegate.call("PlaySound", ["UIMenuBladeOpenSD"]);
+				ShowMakeupPanel(true, {entry: entry});
+			}
+		}
+	}
+										 
+	
 	private function onItemPressSecondary(event: Object): Void
 	{
 		var pressedEntry: Object = itemList.entryList[event.index];
-		var textureList: Array = pressedEntry.GetTextureList(this);
-		if(textureList) {
-			makeupPanel.setMakeupList(textureList);
-			makeupPanel.updateButtons(true);
-			makeupPanel.setSelectedEntry(pressedEntry.texture);
-			makeupPanel.setTexture(pressedEntry.text, pressedEntry.texture);
-			GameDelegate.call("PlaySound", ["UIMenuBladeOpenSD"]);
-			ShowMakeupPanel(true, {entry: pressedEntry});
-		}
+		openMakeupPanel(pressedEntry);
 	}
 	
 	private function onItemPressAux(event: Object): Void
@@ -1397,11 +1518,13 @@ class RaceMenu extends MovieClip
 		var selectedEntry = itemList.listState.selectedEntry;
 		if(selectedEntry != itemList.listState.activeEntry && selectedEntry.filterFlag & RaceMenuDefines.CATEGORY_RACE)
 			navPanel.addButton({text: "$Change Race", controls: _activateControl}).addEventListener("click", this, "onChangeRaceClicked");
-		if(selectedEntry.isColorEnabled())
+		if(selectedEntry.isColorEnabled && selectedEntry.isColorEnabled())
 			navPanel.addButton({text: "$Choose Color", controls: _activateControl}).addEventListener("click", this, "onChooseColorClicked");
-		if(selectedEntry.GetTextureList(this))
+		if(selectedEntry.GetTextureList && selectedEntry.GetTextureList(this))
 			navPanel.addButton({text: "$Choose Texture", controls: _textureControl}).addEventListener("click", this, "onChooseTextureClicked");
-				
+		if(selectedEntry.extraData && selectedEntry.extraData.parts > 0)
+			navPanel.addButton({text: "$Choose Part", controls: _activateControl}).addEventListener("click", this, "onChoosePartClicked");
+		
 		navPanel.updateButtons(true);
 	}
 	
@@ -1424,9 +1547,14 @@ class RaceMenu extends MovieClip
 		statusText = "";
 	}
 	
+	private function navigationDisabled(): Boolean
+	{
+		return colorField._visible || textEntry._visible || makeupPanel._visible || partsPanel._visible;
+	}
+	
 	private function onDoneClicked(): Void
 	{
-		if(colorField._visible || textEntry._visible || makeupPanel._visible)
+		if(navigationDisabled())
 			return;
 		
 		GameDelegate.call("ConfirmDone", []);
@@ -1434,7 +1562,7 @@ class RaceMenu extends MovieClip
 	
 	private function onSearchClicked(): Void
 	{
-		if(colorField._visible || textEntry._visible || makeupPanel._visible)
+		if(navigationDisabled())
 			return;
 		
 		searchWidget.startInput();
@@ -1442,7 +1570,7 @@ class RaceMenu extends MovieClip
 	
 	private function onZoomClicked(): Void
 	{
-		if(colorField._visible || textEntry._visible || makeupPanel._visible)
+		if(navigationDisabled())
 			return;
 		
 		bPlayerZoom = !bPlayerZoom;
@@ -1452,7 +1580,7 @@ class RaceMenu extends MovieClip
 	
 	private function onLightClicked(): Void
 	{
-		if(colorField._visible || textEntry._visible || makeupPanel._visible)
+		if(navigationDisabled())
 			return;
 		
 		bShowLight = !bShowLight;
@@ -1462,7 +1590,7 @@ class RaceMenu extends MovieClip
 	
 	private function onChangeRaceClicked(): Void
 	{
-		if(colorField._visible || textEntry._visible || makeupPanel._visible)
+		if(navigationDisabled())
 			return;
 		
 		var selectedEntry = itemList.listState.selectedEntry;
@@ -1479,33 +1607,29 @@ class RaceMenu extends MovieClip
 	
 	private function onChooseColorClicked(): Void
 	{
-		if(colorField._visible || textEntry._visible || makeupPanel._visible)
+		if(navigationDisabled())
 			return;
 		
 		var selectedEntry = itemList.listState.selectedEntry;
-		if(selectedEntry.isColorEnabled()) {
-			colorField.setText(selectedEntry.text);
-			colorField.setColor(selectedEntry.fillColor);
-			GameDelegate.call("PlaySound", ["UIMenuBladeOpenSD"]);
-			ShowColorField(true, {entry: selectedEntry, mode: "tint", bCanSwitchMode: isOverlayType(selectedEntry.tintType), savedColor: _savedColor});
-		}
+		openColorPicker(selectedEntry);
 	}
 	
 	private function onChooseTextureClicked(): Void
 	{
-		if(colorField._visible || textEntry._visible || makeupPanel._visible)
+		if(navigationDisabled())
 			return;
 		
 		var selectedEntry = itemList.listState.selectedEntry;
-		var textureList: Array = selectedEntry.GetTextureList(this);
-		if(textureList) {
-			makeupPanel.setMakeupList(textureList);
-			makeupPanel.updateButtons(true);
-			makeupPanel.setSelectedEntry(selectedEntry.texture);
-			makeupPanel.setTexture(selectedEntry.text, selectedEntry.texture);
-			GameDelegate.call("PlaySound", ["UIMenuBladeOpenSD"]);
-			ShowMakeupPanel(true, {entry: selectedEntry});
-		}
+		openMakeupPanel(selectedEntry);
+	}
+	
+	private function onChoosePartClicked(): Void
+	{
+		if(navigationDisabled())
+			return;
+		
+		var selectedEntry = itemList.listState.selectedEntry;
+		openPartsPanel(selectedEntry);
 	}
 		
 	private function ReloadSliders(event: Object): Void
